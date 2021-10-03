@@ -1,18 +1,18 @@
 const { Book } = require("../../models");
 
+// get allbooks
 exports.getBooks = async (req, res) => {
-  const book = await Book.findAll({
-    attributes: {
-      exclude: ["updatedAt", "createdAt"],
-    },
-  });
-
-  res.send({
-    status: "success",
-    data: { book },
-  });
-
   try {
+    const books = await Book.findAll({
+      attributes: {
+        exclude: ["updatedAt", "createdAt"],
+      },
+    });
+
+    res.send({
+      status: "success",
+      data: { books },
+    });
   } catch (error) {
     console.log(error);
     res.send({
@@ -22,6 +22,7 @@ exports.getBooks = async (req, res) => {
   }
 };
 
+// get book
 exports.getBook = async (req, res) => {
   const { id } = req.params;
   try {
@@ -48,12 +49,13 @@ exports.getBook = async (req, res) => {
 // add Book
 exports.addBook = async (req, res) => {
   const data = req.body;
+  data.image = req.file.filename;
 
   try {
-    const book = await Book.create(data);
+    await Book.create(data);
 
     res.send({
-      data: { book },
+      book: { data },
       status: "success",
       message: "Add Book finished",
     });
@@ -70,6 +72,12 @@ exports.addBook = async (req, res) => {
 exports.updateBook = async (req, res) => {
   try {
     const { id } = req.params;
+
+    const { body } = req;
+
+    if (req.file) {
+      body.image = req.file.filename;
+    }
 
     await Book.update(req.body, {
       where: { id },
@@ -92,6 +100,7 @@ exports.updateBook = async (req, res) => {
 // Delet Book
 exports.deleteBook = async (req, res) => {
   try {
+    // create auth
     const { id } = req.params;
     await Book.destroy({
       where: { id },

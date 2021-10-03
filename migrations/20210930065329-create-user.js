@@ -23,8 +23,8 @@ module.exports = {
           model: "Roles",
           key: "id",
         },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
+        onUpdate: "RESTRICT",
+        onDelete: "RESTRICT",
       },
       gender: {
         type: Sequelize.STRING,

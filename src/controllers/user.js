@@ -1,17 +1,43 @@
 const { User } = require("../../models");
 
+// get users
 exports.getUsers = async (req, res) => {
-  const user = await User.findAll({
-    attributes: {
-      exclude: ["password", "updatedAt", "createdAt"],
-    },
-  });
-
-  res.send({
-    status: "success",
-    data: { user },
-  });
   try {
+    const users = await User.findAll({
+      attributes: {
+        exclude: ["password", "updatedAt", "createdAt"],
+      },
+    });
+
+    res.send({
+      status: "success",
+      data: { users },
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: "failed",
+      message: "Server error",
+    });
+  }
+};
+
+// get user
+exports.getUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const users = await User.findOne({
+      where: { id },
+      attributes: {
+        exclude: ["password", "updatedAt", "createdAt"],
+      },
+    });
+
+    res.send({
+      status: "success",
+      data: { users },
+    });
   } catch (error) {
     console.log(error);
     res.send({
@@ -32,7 +58,6 @@ exports.addUser = async (req, res) => {
       data: { user },
       status: "success",
       message: "Add user finished",
-      userAll: { user1 },
     });
   } catch (error) {
     console.log(error);
@@ -46,16 +71,26 @@ exports.addUser = async (req, res) => {
 // update User
 exports.updateUser = async (req, res) => {
   try {
-    const { id } = req.params;
+    const userId = req.idUser;
+
+    const { body } = req;
+
+    if (req.file) {
+      body.image = req.file.filename;
+    }
 
     await User.update(req.body, {
-      where: { id },
+      where: { id: userId },
+    });
+
+    const updatedData = await User.findOne({
+      where: { id: userId },
     });
 
     res.send({
       status: "success",
-      message: `Update user id: ${id} finished`,
-      data: req.body,
+      message: `Update profile success`,
+      data: updatedData,
     });
   } catch (error) {
     console.log(error);
@@ -76,7 +111,7 @@ exports.deleteUser = async (req, res) => {
 
     res.send({
       status: "success",
-      message: `Delete user with id ${id} finished`,
+      message: `Delete user id ${id} success`,
     });
   } catch (error) {
     console.log(error);
